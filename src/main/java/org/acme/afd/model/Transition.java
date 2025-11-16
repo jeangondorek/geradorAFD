@@ -1,12 +1,11 @@
 package org.acme.afd.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transition {
     private final State source;
     private final String symbol;

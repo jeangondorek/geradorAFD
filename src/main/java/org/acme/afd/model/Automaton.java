@@ -1,19 +1,17 @@
 package org.acme.afd.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Automaton {
-    private final Set<State> states;
-    private final Set<String> alphabet;
+    private Set<State> states;
+    private Set<String> alphabet;
     private State initialState;
-    private final Set<State> finalStates;
-    private final List<Transition> transitions;
-    private final Map<String, Set<Transition>> transitionTable;
+    private List<Transition> transitions;
+    private Map<String, Set<Transition>> transitionTable;
 }

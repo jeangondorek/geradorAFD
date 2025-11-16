@@ -1,16 +1,13 @@
 package org.acme.afd.model;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
-import java.util.Objects;
+import lombok.*;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Builder
 public class State {
-    private final String id;
+    private String label;
     private boolean isFinal;
     private String tokenName;
 }
