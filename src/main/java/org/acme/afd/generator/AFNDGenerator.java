@@ -48,8 +48,10 @@ public class AFNDGenerator {
                 allStates.add(currentState);
                 afnd.setStates(allStates);
 
+                List<State> listState = afnd.getStates().stream().toList();
+
                 afnd.getTransitions().add(Transition.builder()
-                                .source(prevState != null ? prevState : null)
+                                .source(prevState != null ? prevState : listState.getFirst())
                                 .symbol(prevState != null ? prevState.getLabel() : null)
                                 .target(currentState)
                         .build());
@@ -62,8 +64,10 @@ public class AFNDGenerator {
             State finalState = createState("", generateStateName(), true);
             afnd.getStates().add(finalState);
 
+            List<State> listState = afnd.getStates().stream().toList();
+
             afnd.getTransitions().add(Transition.builder()
-                    .source(prevState)
+                    .source(prevState != null ? prevState : listState.getFirst())
                     .symbol(prevState.getLabel())
                     .target(finalState)
                     .build());
@@ -149,6 +153,9 @@ public class AFNDGenerator {
             }
 
         }
+        List<State> listState = afnd.getStates().stream().toList();
+
+        afnd.setInitialState(listState.getFirst());
 
         return afnd;
     }

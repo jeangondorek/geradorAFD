@@ -68,7 +68,6 @@ public class InitializeProgram {
 
         try (FileWriter writer = new FileWriter(fileName)) {
 
-
             writer.append("Estado");
             for (String symbol : alphabet) {
                 writer.append(",").append(symbol);
@@ -83,15 +82,12 @@ public class InitializeProgram {
                 for (String symbol : alphabet) {
                     Set<String> targets = new LinkedHashSet<>();
 
-                    // Percorrer todas as transições e filtrar as que partem deste estado
                     for (Transition t : automaton.getTransitions()) {
-                        // Verificar se a transição parte deste estado
                         boolean isFromThisState = false;
                         if (t.getSource() != null && t.getSource().equals(state)) {
                             isFromThisState = true;
                         }
-                        
-                        // Se a transição parte deste estado e o símbolo coincide, adicionar o destino
+
                         if (isFromThisState && 
                             t.getSymbol() != null && 
                             t.getSymbol().equals(symbol) && 

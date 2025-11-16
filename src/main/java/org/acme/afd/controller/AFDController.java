@@ -56,7 +56,6 @@ public class AFDController {
     public Automaton processFileAfd(Automaton afnd) {
         // 3. Determinizar
         Automaton afd = determinizer.determinize(afnd);
-        determinizer.printDeterminizationInfo();
 
         System.out.println("\nProcessamento concluído AFD com sucesso!");
         return afd;
