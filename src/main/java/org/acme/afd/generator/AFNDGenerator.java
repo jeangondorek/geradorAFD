@@ -1,13 +1,19 @@
 package org.acme.afd.generator;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.acme.afd.model.Automaton;
 import org.acme.afd.model.State;
 import org.acme.afd.model.Transition;
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class AFNDGenerator {
@@ -65,11 +71,9 @@ public class AFNDGenerator {
             countState = 0;
             afnd.setStates(allStates);
         }
-
+        
         Map<String, String> tokenToStateMap = new HashMap<>();
-
-        State prevState = null;
-        State currentState = null;
+        Map<String, State> stateMap = new HashMap<>();
 
         for (Map.Entry<String, String> entry : grammars.entrySet()) {
             String ruleName = entry.getKey();
@@ -82,6 +86,20 @@ public class AFNDGenerator {
 
                 boolean isFinal = part.equals("ε");
 
+                if (isFinal) {
+                    State sourceState;
+                    if (ruleName.equals("S")) {
+                        sourceState = afnd.getInitialState();
+                    } else {
+                        String stateName = tokenToStateMap.get(ruleName);
+                        sourceState = stateMap.get(stateName);
+                    }
+                    if (sourceState != null) {
+                        sourceState.setFinal(true);
+                    }
+                    continue;
+                }
+
                 Matcher tokenMatcher = Pattern.compile("<(.*?)>").matcher(part);
                 String tokenName = tokenMatcher.find() ? tokenMatcher.group(1) : null;
 
@@ -89,37 +107,47 @@ public class AFNDGenerator {
                 String label = lowerMatcher.find() ? lowerMatcher.group() : null;
                 afnd.getAlphabet().add(label);
 
+                State sourceState;
+                if (ruleName.equals("S")) {
+                    sourceState = afnd.getInitialState();
+                } else {
+                    String sourceStateName = tokenToStateMap.get(ruleName);
+                    sourceState = stateMap.get(sourceStateName);
+                }
+
+                State targetState;
                 String nextRuleName;
 
                 if (tokenName != null) {
                     if (tokenToStateMap.containsKey(tokenName)) {
                         nextRuleName = tokenToStateMap.get(tokenName);
+                        targetState = stateMap.get(nextRuleName);
                     } else {
                         nextRuleName = generateStateName();
                         tokenToStateMap.put(tokenName, nextRuleName);
+                        targetState = createState(label, nextRuleName, false);
+                        stateMap.put(nextRuleName, targetState);
+                        allStates = afnd.getStates();
+                        allStates.add(targetState);
+                        afnd.setStates(allStates);
                     }
                 } else {
-                    if (tokenToStateMap.containsKey(ruleName)) {
-                        nextRuleName = tokenToStateMap.get(ruleName);
-                    } else {
-                        nextRuleName = generateStateName();
-                        tokenToStateMap.put(ruleName, nextRuleName);
-                    }
+                    nextRuleName = generateStateName();
+                    targetState = createState(label, nextRuleName, false);
+                    allStates = afnd.getStates();
+                    allStates.add(targetState);
+                    afnd.setStates(allStates);
                 }
-                allStates = afnd.getStates();
-                List<State> statesList = new ArrayList<>(allStates);
-                prevState = statesList.getLast();
-                currentState = createState(label, nextRuleName, isFinal);
+
+                List<State> listState = afnd.getStates().stream().toList();
+
                 afnd.getTransitions().add(Transition.builder()
-                                .source(prevState)
-                                .target(currentState)
-                                .symbol(prevState.getLabel())
+                        .source(sourceState != null ? sourceState : listState.getFirst())
+                        .target(targetState)
+                        .symbol(label)
                         .build());
-                allStates = afnd.getStates();
-                allStates.add(currentState);
-                afnd.setStates(allStates);
             }
-          
+
         }
 
         return afnd;
