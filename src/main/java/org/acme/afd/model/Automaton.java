@@ -13,5 +13,4 @@ public class Automaton {
     private Set<String> alphabet;
     private State initialState;
     private List<Transition> transitions;
-    private Map<String, Set<Transition>> transitionTable;
 }

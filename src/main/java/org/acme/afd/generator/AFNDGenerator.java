@@ -24,7 +24,6 @@ public class AFNDGenerator {
                 .states(new LinkedHashSet<>())
                 .alphabet(new LinkedHashSet<>())
                 .transitions(new ArrayList<>())
-                .transitionTable(new LinkedHashMap<>())
                 .build();
 
         String initialTokenName = "S";
@@ -33,52 +32,44 @@ public class AFNDGenerator {
         Set<State> allStates = afnd.getStates();
 
         for (String token : tokens) {
+            State prevState = null;
             State currentState = null;
             for (char ch : token.toCharArray()) {
                 allStates = afnd.getStates();
-                if (countState == 0){
-                    State initialState = createState(String.valueOf(ch), initialTokenName, false);
-                    currentState = initialState;
-                    allStates.add(currentState);
-                    afnd.setStates(allStates);
-                    afnd.setInitialState(initialState);
-                    afnd.getTransitions().add(Transition.builder()
-                            .source(null)
-                            .target(currentState)
-                            .symbol(String.valueOf(ch))
-                            .build());
-                    countState++;
-                    afnd.getAlphabet().add(String.valueOf(ch));
-                } else {
-                    currentState = createState(String.valueOf(ch), generateStateName(), false);
-                    allStates.add(currentState);
 
-                    afnd.getTransitions().add(Transition.builder()
-                            .source(null)
-                            .target(currentState)
-                            .symbol(String.valueOf(ch))
-                            .build());
+                currentState = tokenCreate( countState, ch, afnd, initialTokenName);
 
-                    afnd.setStates(allStates);
-                    afnd.getAlphabet().add(String.valueOf(ch));
-                }
+                allStates.add(currentState);
+                afnd.setStates(allStates);
+
+                afnd.getTransitions().add(Transition.builder()
+                                .source(prevState != null ? prevState : null)
+                                .symbol(prevState != null ? prevState.getLabel() : null)
+                                .target(currentState)
+                        .build());
+
+                prevState = currentState;
+
+                countState++;
             }
 
-            countState = 0;
-            allStates = afnd.getStates();
-            currentState = createState("", generateStateName(), true);
-            List<State> statesList = new ArrayList<>(allStates);
-            State prevState = statesList.getLast();
+            State finalState = createState("", generateStateName(), true);
+            afnd.getStates().add(finalState);
+
             afnd.getTransitions().add(Transition.builder()
                     .source(prevState)
-                    .target(currentState)
-                    .symbol("")
+                    .symbol(prevState.getLabel())
+                    .target(finalState)
                     .build());
-            allStates.add(currentState);
+
+            countState = 0;
             afnd.setStates(allStates);
         }
 
         Map<String, String> tokenToStateMap = new HashMap<>();
+
+        State prevState = null;
+        State currentState = null;
 
         for (Map.Entry<String, String> entry : grammars.entrySet()) {
             String ruleName = entry.getKey();
@@ -117,20 +108,31 @@ public class AFNDGenerator {
                 }
                 allStates = afnd.getStates();
                 List<State> statesList = new ArrayList<>(allStates);
-                State prevState = statesList.getLast();
-                State currentState = createState(label, nextRuleName, isFinal);
+                prevState = statesList.getLast();
+                currentState = createState(label, nextRuleName, isFinal);
                 afnd.getTransitions().add(Transition.builder()
                                 .source(prevState)
                                 .target(currentState)
-                                .symbol(label)
+                                .symbol(prevState.getLabel())
                         .build());
                 allStates = afnd.getStates();
                 allStates.add(currentState);
                 afnd.setStates(allStates);
             }
+          
         }
 
         return afnd;
+    }
+
+    private State tokenCreate(int countState, char ch, Automaton afnd, String initialTokenName) {
+        if (countState == 0){
+            afnd.getAlphabet().add(String.valueOf(ch));
+            return createState(String.valueOf(ch), initialTokenName, false);
+        } else {
+            afnd.getAlphabet().add(String.valueOf(ch));
+            return createState(String.valueOf(ch), generateStateName(), false);
+        }
     }
 
     private State createState(String label, String initialTokenName, boolean isFinal) {
