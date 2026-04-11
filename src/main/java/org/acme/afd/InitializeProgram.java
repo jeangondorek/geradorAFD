@@ -10,6 +10,7 @@ import org.acme.afd.controller.AFDController;
 import org.acme.afd.model.Automaton;
 import org.acme.afd.model.State;
 import org.acme.afd.model.Transition;
+import org.acme.afd.recognizer.Recognizer;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,6 +21,7 @@ import lombok.AllArgsConstructor;
 public class InitializeProgram {
 
     private final AFDController controller;
+    private final Recognizer recognizer;
 
     private static boolean initialized = false;
 
@@ -28,7 +30,7 @@ public class InitializeProgram {
         if (initialized) return;
         initialized = true;
 
-        String inputFile = "entrada.txt";
+        String inputFile = "entradacompi.txt";
 
         System.out.println("==== Inicializando programa ====");
         System.out.println("Lendo arquivo: " + inputFile + "\n");
@@ -40,6 +42,13 @@ public class InitializeProgram {
         converterParaCSVSomenteEstados(afnd, "afnd.csv");
         if (afd != null) {
             converterParaCSVSomenteEstados(afd, "afd.csv");
+        }
+
+        String sourceFile = "entradacompi.txt";
+        try {
+            recognizer.recognize(afd, sourceFile);
+        } catch (Exception e) {
+            System.out.println("Arquivo de código não encontrado para reconhecimento léxico (" + sourceFile + "). Crie um arquivo com esse nome testar a fita.");
         }
     }
 

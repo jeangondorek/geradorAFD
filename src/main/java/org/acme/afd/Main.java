@@ -1,5 +1,7 @@
 package org.acme.afd;
 
+import java.io.IOException;
+
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
@@ -21,7 +23,7 @@ public class Main implements QuarkusApplication {
             initializeProgram.initialize();
             Quarkus.waitForExit();
             return 0;
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("❌ Erro na inicialização: " + e.getMessage());
             return 1;
         }

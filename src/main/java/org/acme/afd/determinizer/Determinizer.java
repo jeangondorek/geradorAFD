@@ -1,17 +1,26 @@
 package org.acme.afd.determinizer;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.acme.afd.model.Automaton;
 import org.acme.afd.model.State;
 import org.acme.afd.model.Transition;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class Determinizer {
 
-    public static final String SINK_STATE_NAME = "ERROR";
+    public static final String SINK_STATE_NAME = "X";
 
     public Automaton determinize(Automaton afnd) {
         Automaton afd = Automaton.builder()
