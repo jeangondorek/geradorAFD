@@ -1,25 +1,34 @@
 package org.acme.afd;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.acme.afd.analisadorlexico.Lexical;
 import org.acme.afd.controller.AFDController;
 import org.acme.afd.model.Automaton;
 import org.acme.afd.model.State;
 import org.acme.afd.model.Transition;
+import org.acme.afd.parser.InputParser;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import lombok.AllArgsConstructor;
 
 @ApplicationScoped
 @AllArgsConstructor
 public class InitializeProgram {
 
+    @Inject
+    InputParser parser;
+
     private final AFDController controller;
+    private final Lexical lexical;
 
     private static boolean initialized = false;
 
@@ -28,7 +37,7 @@ public class InitializeProgram {
         if (initialized) return;
         initialized = true;
 
-        String inputFile = "entrada.txt";
+        String inputFile = "entradacompi.txt";
 
         System.out.println("==== Inicializando programa ====");
         System.out.println("Lendo arquivo: " + inputFile + "\n");
@@ -40,6 +49,18 @@ public class InitializeProgram {
         converterParaCSVSomenteEstados(afnd, "afnd.csv");
         if (afd != null) {
             converterParaCSVSomenteEstados(afd, "afd.csv");
+        }
+
+        try {
+            lexical.analyze(afd, processFileTokens(inputFile));
+        } catch (IOException e) {
+            System.out.println("Arquivo de código não encontrado para reconhecimento léxico (" + inputFile + "). Crie um arquivo com esse nome testar a fita.");
+        }
+    }
+
+    public List<String> processFileTokens(String filePath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            return parser.parse(reader);
         }
     }
 
