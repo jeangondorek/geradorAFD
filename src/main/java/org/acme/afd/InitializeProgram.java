@@ -14,6 +14,7 @@ import org.acme.afd.model.Automaton;
 import org.acme.afd.model.State;
 import org.acme.afd.model.Transition;
 import org.acme.afd.parser.InputParser;
+import org.acme.afd.teste.TesteValidator;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,6 +29,8 @@ public class InitializeProgram {
     InputParser parser;
 
     private final AFDController controller;
+    @Inject
+    TesteValidator testeValidator;
     private final Lexical lexical;
 
     private static boolean initialized = false;
@@ -55,6 +58,12 @@ public class InitializeProgram {
             lexical.analyze(afd, processFileTokens(inputFile));
         } catch (IOException e) {
             System.out.println("Arquivo de código não encontrado para reconhecimento léxico (" + inputFile + "). Crie um arquivo com esse nome testar a fita.");
+        }
+
+        try {
+            testeValidator.validarArquivoTeste(afd, "teste.txt");
+        } catch (Exception e) {
+            System.out.println("Erro ao validar teste.txt: " + e.getMessage());
         }
     }
 
