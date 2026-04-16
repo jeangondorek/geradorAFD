@@ -20,6 +20,7 @@ public class AFNDGenerator {
     private static final char SKIP_LETTER = 'S';
     private static final char START_LETTER = 'A';
     private static final char END_LETTER = 'Z';
+    private static final char ERROR_STATE_LABEL = 'X';
 
     private final Map<String, State> existingStates = new HashMap<>();
     private int suffix = 1;
@@ -198,6 +199,9 @@ public class AFNDGenerator {
             }
 
             lastLetter++;
+            if (lastLetter == ERROR_STATE_LABEL) {
+                lastLetter++;
+            }
             if (lastLetter > END_LETTER) {
                 lastLetter = START_LETTER;
                 suffix++;

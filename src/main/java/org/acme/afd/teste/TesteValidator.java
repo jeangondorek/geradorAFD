@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.acme.afd.model.Automaton;
 import org.acme.afd.model.State;
@@ -17,6 +19,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class TesteValidator {
 
+    private static final Pattern TOKEN_PATTERN = Pattern.compile(
+            "==|!=|<=|>=|&&|\\|\\||\\+\\+|--|->|=>|::|[{}()\\[\\],;.:=+\\-*/<>!%&|^~?]|[^\\s{}()\\[\\],;.:=+\\-*/<>!%&|^~?]+"
+    );
+
     public void validarArquivoTeste(Automaton afd, String testFile) throws Exception {
         List<String> palavras = new ArrayList<>();
         List<String> fitaTeste = new ArrayList<>();
@@ -25,9 +31,15 @@ public class TesteValidator {
         try (BufferedReader reader = new BufferedReader(new FileReader(testFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String trimmed = line.trim();
-                if (!trimmed.isEmpty()) {
-                    palavras.add(trimmed);
+                String normalizedLine = line
+                        .replaceAll("\\\\+[ntr]", " ");
+
+                Matcher matcher = TOKEN_PATTERN.matcher(normalizedLine);
+                while (matcher.find()) {
+                    String token = matcher.group().trim();
+                    if (!token.isEmpty()) {
+                        palavras.add(token);
+                    }
                 }
             }
         }

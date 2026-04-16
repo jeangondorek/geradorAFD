@@ -1,7 +1,6 @@
 banana
-se
+se vai
+vai
 sai
-xablau
-ia
-foi
-faei
+sai\\nbanana\\tfeijao\rse\tar nsh
+

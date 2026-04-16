@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.acme.afd.analisadorlexico.Lexical;
 import org.acme.afd.controller.AFDController;
@@ -24,6 +27,10 @@ import lombok.AllArgsConstructor;
 @ApplicationScoped
 @AllArgsConstructor
 public class InitializeProgram {
+
+    private static final Pattern TOKEN_PATTERN = Pattern.compile(
+        "==|!=|<=|>=|&&|\\|\\||\\+\\+|--|->|=>|::|[{}()\\[\\],;.:=+\\-*/<>!%&|^~?]|[^\\s{}()\\[\\],;.:=+\\-*/<>!%&|^~?]+"
+    );
 
     @Inject
     InputParser parser;
@@ -55,22 +62,35 @@ public class InitializeProgram {
         }
 
         try {
-            lexical.analyze(afd, processFileTokens(inputFile));
+            lexical.analyze(afd, processFileTokens("teste.txt"));
         } catch (IOException e) {
             System.out.println("Arquivo de código não encontrado para reconhecimento léxico (" + inputFile + "). Crie um arquivo com esse nome testar a fita.");
         }
 
-        try {
-            testeValidator.validarArquivoTeste(afd, "teste.txt");
-        } catch (Exception e) {
-            System.out.println("Erro ao validar teste.txt: " + e.getMessage());
-        }
+
     }
 
     public List<String> processFileTokens(String filePath) throws IOException {
+        List<String> tokens = new ArrayList<>();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            return parser.parse(reader);
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                String normalizedLine = line
+                    .replaceAll("\\\\+[ntr]", " ");
+
+                Matcher matcher = TOKEN_PATTERN.matcher(normalizedLine);
+                while (matcher.find()) {
+                    String token = matcher.group().trim();
+                    if (!token.isEmpty()) {
+                        tokens.add(token);
+                    }
+                }
+            }
         }
+
+        return tokens;
     }
 
     public static void converterParaCSVSomenteEstados(Automaton automaton, String fileName) {
