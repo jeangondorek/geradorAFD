@@ -1,11 +1,23 @@
-Estado,s,e,a,i,f,o
--> S,A-C,I,I,I,F-I,X
-A-C,X,B,D,X,X,X
-I*,X,I,I,I,I,X
-F-I*,X,I,I,I,I,G
-X,X,X,X,X,X,X
-B*,X,X,X,X,X,X
-D,X,X,X,E,X,X
-G,X,X,X,H,X,X
-E*,X,X,X,X,X,X
-H*,X,X,X,X,X,X
+Estado,b,a,n,m,c,r,o,e,d,f,i
+-> S,A,U,X,G,O,X,X,U,X,U,U
+A,X,B,X,X,X,X,X,X,X,X,X
+U*,X,U,X,X,X,X,X,U,X,U,U
+X,X,X,X,X,X,X,X,X,X,X,X
+G,X,H,X,X,X,X,X,X,X,X,X
+O,X,X,X,X,X,X,X,P,X,X,X
+B,X,X,C,X,X,X,X,X,X,X,X
+H,X,X,X,X,I,X,X,X,X,X,X
+P,X,X,X,X,X,Q,X,X,X,X,X
+C,X,D,X,X,X,X,X,X,X,X,X
+I,X,J,X,X,X,X,X,X,X,X,X
+Q,X,X,X,X,X,X,X,X,R,X,X
+D,X,X,E,X,X,X,X,X,X,X,X
+J,X,X,X,X,X,K,X,X,X,X,X
+R,X,X,X,X,X,X,T,X,X,X,X
+E,X,F,X,X,X,X,X,X,X,X,X
+K,X,X,X,X,X,L,X,X,X,X,X
+T*,X,X,X,X,X,X,X,X,X,X,X
+F*,X,X,X,X,X,X,X,X,X,X,X
+L,X,M,X,X,X,X,X,X,X,X,X
+M,X,X,X,X,X,X,N,X,X,X,X
+N*,X,X,X,X,X,X,X,X,X,X,X

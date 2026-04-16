@@ -1,6 +1,6 @@
-se
-sai
-foi
+banana
+macarrao
+cerdo
 
 <S> ::= f<A> | a<A> | e<A> | i<A>
 <A> ::= f<A> | a<A> | e<A> | i<A> | ε
