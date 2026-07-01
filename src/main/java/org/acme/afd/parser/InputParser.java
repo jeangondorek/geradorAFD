@@ -9,10 +9,16 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser do arquivo de configuracao de entrada.
+ * Extrai tokens (palavras reservadas e simbolos) e regras gramaticais em formato BNF
+ * a partir do arquivo de definicao da linguagem.
+ */
 @ApplicationScoped
 @Getter
 public class InputParser {
 
+    /** Le o arquivo e retorna apenas as linhas que representam tokens (ignora gramaticas e comentarios). */
     public List<String> parse(BufferedReader reader) throws IOException {
         List<String> tokens = new ArrayList<>();
         String line;
@@ -20,10 +26,12 @@ public class InputParser {
         while ((line = reader.readLine()) != null) {
             line = line.trim();
 
+            // Ignora linhas vazias e comentarios
             if (line.isEmpty() || line.startsWith("//") || line.startsWith("#")) {
                 continue;
             }
 
+            // Linhas sem '::=' sao tokens; linhas com '::=' sao regras gramaticais
             if (!line.contains("::=")) {
                 tokens.add(line);
             }
@@ -32,6 +40,7 @@ public class InputParser {
         return tokens;
     }
 
+    /** Extrai uma regra gramatical BNF de uma linha no formato '<simbolo> ::= producoes'. */
     public Map<String, String> parseGrammar(String grammarLine) {
         Map<String, String> grammars = new HashMap<>();
         Pattern symbolPattern = Pattern.compile("<([^>]+)>");
@@ -49,6 +58,7 @@ public class InputParser {
         return grammars;
     }
 
+    /** Imprime no console os tokens e gramaticas extraidos para fins de depuracao. */
     public void printParsedData(List<String> tokens, Map<String, String> grammars) {
         System.out.println("===== TOKENS =====");
         if (tokens == null || tokens.isEmpty()) {

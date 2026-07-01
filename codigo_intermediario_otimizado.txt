@@ -1,0 +1,6 @@
+F = TOKEN(F, banana)
+N = TOKEN(N, macarrao)
+T = TOKEN(T, cerdo)
+U = TOKEN(U, fi)
+U = TOKEN(U, fei)
+U = TOKEN(U, ei)

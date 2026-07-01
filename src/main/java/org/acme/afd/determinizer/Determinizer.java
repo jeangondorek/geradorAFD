@@ -17,22 +17,32 @@ import org.acme.afd.model.Transition;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+/**
+ * Implementa o algoritmo de construcao de subconjuntos (subset construction)
+ * para converter um AFND em um AFD equivalente.
+ * Adiciona automaticamente o estado de erro/sumidouro X para transicoes indefinidas.
+ */
 @ApplicationScoped
 public class Determinizer {
 
     public static final String SINK_STATE_NAME = "X";
 
+    /** Executa a determinizacao do AFND, retornando o AFD equivalente. */
     public Automaton determinize(Automaton afnd) {
+        // Cria o AFD vazio com o mesmo alfabeto do AFND
         Automaton afd = Automaton.builder()
                 .states(new LinkedHashSet<>())
                 .alphabet(afnd.getAlphabet())
                 .transitions(new ArrayList<>())
                 .build();
 
+        // Mapeia conjuntos de estados do AFND para estados unicos do AFD
         Map<Set<State>, State> mappedStates = new HashMap<>();
 
+        // Fila para processar os conjuntos de estados pendentes (BFS)
         Queue<Set<State>> queue = new LinkedList<>();
 
+        // Inicializa com o conjunto contendo apenas o estado inicial do AFND
         Set<State> afndInitialSet = new HashSet<>();
         afndInitialSet.add(afnd.getInitialState());
 
@@ -44,10 +54,12 @@ public class Determinizer {
         mappedStates.put(afndInitialSet, afdInitialState);
         queue.add(afndInitialSet);
 
+        // Processa cada conjunto de estados ate que todos tenham sido explorados
         while (!queue.isEmpty()) {
             Set<State> currentAfndStates = queue.poll();
             State sourceAfdState = mappedStates.get(currentAfndStates);
 
+            // Para cada simbolo do alfabeto, calcula o conjunto de estados alcancaveis
             for (String symbol : afd.getAlphabet()) {
                 Set<State> targetAfndStates = new HashSet<>();
                 for (State s : currentAfndStates) {
@@ -56,6 +68,7 @@ public class Determinizer {
 
                 State targetAfdState;
 
+                // Se nao ha destinos, direciona para o estado de erro (sumidouro)
                 if (targetAfndStates.isEmpty()) {
                     targetAfdState = getOrCreateSinkState(afd, mappedStates);
                 } else {
@@ -80,6 +93,7 @@ public class Determinizer {
         return afd;
     }
 
+    /** Retorna todos os estados destino no AFND a partir de um estado e simbolo. */
     private Set<State> getTargets(Automaton afnd, State source, String symbol) {
         Set<State> targets = new HashSet<>();
         if (symbol == null || symbol.isEmpty()) {
@@ -94,7 +108,9 @@ public class Determinizer {
         return targets;
     }
 
+    /** Cria um novo estado do AFD representando um conjunto de estados do AFND. */
     private State createStateForSet(Set<State> stateSet) {
+        // O estado e final se qualquer estado do conjunto original for final
         boolean isFinal = stateSet.stream().anyMatch(State::isFinal);
 
         String label;
@@ -120,6 +136,7 @@ public class Determinizer {
                 .build();
     }
 
+    /** Obtem ou cria o estado sumidouro (X), cujas transicoes apontam para ele mesmo. */
     private State getOrCreateSinkState(Automaton afd, Map<Set<State>, State> mappedStates) {
         Set<State> emptySet = Collections.emptySet();
         State sinkState = mappedStates.get(emptySet);

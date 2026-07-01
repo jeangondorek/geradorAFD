@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tour do Projeto - Reconhecedor Sintatico SLR</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #5d6875;
+      --line: #d8dee7;
+      --blue: #1f5eff;
+      --green: #147d55;
+      --amber: #a15c00;
+      --code: #111827;
+      --code-ink: #e5e7eb;
+      --soft-blue: #e9efff;
+      --soft-green: #e7f6ef;
+      --soft-amber: #fff3df;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      overflow: auto;
+      background: #101827;
+      color: #eef2ff;
+      border-right: 1px solid #0b1220;
+    }
+
+    aside h1 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    aside p {
+      margin: 0 0 22px;
+      color: #bcc7d8;
+      font-size: 14px;
+    }
+
+    nav a {
+      display: block;
+      padding: 9px 10px;
+      color: #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      background: #1f2a3d;
+      text-decoration: none;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1180px;
+      padding: 36px 34px 64px;
+    }
+
+    section {
+      margin-bottom: 28px;
+      padding: 26px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 26px;
+      line-height: 1.2;
+    }
+
+    h3 {
+      margin: 22px 0 10px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    .hero {
+      padding: 34px;
+      background: #ffffff;
+    }
+
+    .hero h2 {
+      font-size: 34px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 10px;
+      color: #1f2a3d;
+      background: #eef2f7;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .stage {
+      border-left: 4px solid var(--blue);
+    }
+
+    .stage.ok {
+      border-left-color: var(--green);
+    }
+
+    .stage.warn {
+      border-left-color: var(--amber);
+    }
+
+    .file {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 3px 7px;
+      border-radius: 5px;
+      background: var(--soft-blue);
+      color: #153b91;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 12px 0 0;
+      padding: 14px;
+      overflow: auto;
+      color: var(--code-ink);
+      background: var(--code);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    code {
+      font-family: Consolas, Monaco, monospace;
+    }
+
+    .note {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: var(--soft-green);
+      border: 1px solid #bfe8d2;
+      border-radius: 8px;
+      color: #184f39;
+    }
+
+    .warning {
+      background: var(--soft-amber);
+      border-color: #ffd99b;
+      color: #653800;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .flow div {
+      min-height: 84px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .flow strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #111827;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        display: block;
+      }
+
+      aside {
+        position: static;
+        height: auto;
+      }
+
+      main {
+        padding: 22px 16px 42px;
+      }
+
+      .grid,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <h1>Tour do Reconhecedor Sintatico</h1>
+      <p>Guia de leitura do projeto, dos arquivos e das quatro etapas da avaliacao.</p>
+      <nav>
+        <a href="#visao-geral">Visao geral</a>
+        <a href="#fluxo">Fluxo de execucao</a>
+        <a href="#etapa1">Etapa 1 - SLR</a>
+        <a href="#etapa2">Etapa 2 - Semantica</a>
+        <a href="#etapa3">Etapa 3 - Codigo intermediario</a>
+        <a href="#etapa4">Etapa 4 - Otimizacao</a>
+        <a href="#arquivos">Mapa dos arquivos</a>
+        <a href="#arguicao">Pontos para arguicao</a>
+      </nav>
+    </aside>
+
+    <main>
+      <section id="visao-geral" class="hero">
+        <h2>Reconhecedor Sintatico SLR para uma linguagem hipotetica</h2>
+        <p>
+          Esta pagina e um tour pelo projeto. Ela explica onde cada requisito foi implementado,
+          quais arquivos consultar e quais trechos de codigo ajudam a defender o trabalho na apresentacao.
+        </p>
+        <div class="meta">
+          <span class="pill">Autor: Jean Carlos Canova Gondorek</span>
+          <span class="pill">Instituicao: UFFS – Universidade Federal da Fronteira Sul, Chapeco</span>
+          <span class="pill">Parser: SLR</span>
+          <span class="pill">Entrada: fita lexica</span>
+          <span class="pill">Saidas: CSV, semantica, intermediario e otimizado</span>
+        </div>
+        <div class="note">
+          Resultado atual do estudo de caso: sintaxe aceita, semantica aceita, tabela SLR sem conflitos,
+          codigo intermediario gerado e codigo otimizado gerado.
+        </div>
+      </section>
+
+      <section id="fluxo">
+        <h2>Fluxo de Execucao</h2>
+        <p>O programa parte da entrada lexica, gera a fita de tokens e entao executa o pipeline sintatico.</p>
+        <div class="flow">
+          <div><strong>1. Lexico</strong>Gera <code>fita.csv</code> e <code>tabela_simbolos.csv</code>.</div>
+          <div><strong>2. Gramatica</strong>Carrega e normaliza a GLC.</div>
+          <div><strong>3. SLR</strong>Calcula FIRST/FOLLOW, itens LR(0), transicoes e tabela.</div>
+          <div><strong>4. Parser</strong>Executa shift/reduce e anota a TS.</div>
+          <div><strong>5. Extras</strong>Semantica, codigo intermediario e otimizacao.</div>
+        </div>
+        <pre><code>fita.csv -> GrammarLoader -> GrammarNormalizer -> SLRTableBuilder
+         -> SyntacticAnalyzer -> SemanticAnalyzer -> IntermediateCodeOptimizer</code></pre>
+      </section>
+
+      <section id="etapa1">
+        <h2>Etapa 1 - Reconhecimento Sintatico SLR</h2>
+        <div class="grid">
+          <article class="card stage ok">
+            <span class="file">GrammarLoader.java</span>
+            <h3>Carrega a GLC</h3>
+            <p>Le as producoes, normaliza simbolos e trata <code>epsilon</code> como producao vazia.</p>
+            <pre><code>if (!normalizedRight.contains(" ")) {
+    String symbol = normalizeSymbol(normalizedRight);
+    return EPSILON.equals(symbol) ? List.of() : List.of(symbol);
+}</code></pre>
+            <p class="note">Ponto importante: <code>epsilon</code> nao e token da fita; ele representa lado direito vazio.</p>
+          </article>
+
+          <article class="card stage ok">
+            <span class="file">GrammarNormalizer.java</span>
+            <h3>Remove inuteis e fatora</h3>
+            <p>Atende ao item da GLC: remove nao terminais improdutivos/inalcancaveis e agrupa prefixos comuns.</p>
+            <pre><code>public Grammar normalize(Grammar grammar) {
+    return factor(removeUselessProductions(grammar));
+}
+
+// Etapa 1: remove nao terminais que nao geram sentencas ou nao sao alcancaveis.
+private Grammar removeUselessProductions(Grammar grammar) { ... }
+
+// Etapa 1: aplica fatoracao simples agrupando alternativas com prefixo comum.
+private Grammar factor(Grammar grammar) { ... }</code></pre>
+          </article>
+
+          <article class="card stage ok">
+            <span class="file">FirstFollowCalculator.java</span>
+            <h3>Calcula FIRST/FOLLOW</h3>
+            <p>FIRST indica inicios possiveis; FOLLOW indica o que pode aparecer apos um nao terminal.</p>
+            <pre><code>follow.get(grammar.startSymbol()).add("$");
+
+do {
+    changed = computeFirst(grammar, first) || computeFollow(grammar, first, follow);
+} while (changed);</code></pre>
+          </article>
+
+          <article class="card stage ok">
+            <span class="file">SLRTableBuilder.java</span>
+            <h3>Monta itens, transicoes e tabela SLR</h3>
+            <p>Constroi estados LR(0), registra ACTION/GOTO e detecta conflitos.</p>
+            <pre><code>if (grammar.isTerminal(nextSymbol)) {
+    putAction(action, i, nextSymbol, new ParsingAction(ActionType.SHIFT, target), conflicts);
+} else if (grammar.isNonTerminal(nextSymbol)) {
+    goTo.computeIfAbsent(i, k -> new LinkedHashMap&lt;&gt;()).put(nextSymbol, target);
+}</code></pre>
+          </article>
+        </div>
+
+        <h3>Saidas da etapa 1</h3>
+        <table>
+          <tr><th>Arquivo</th><th>O que demonstra</th></tr>
+          <tr><td><code>producoes.csv</code></td><td>Producoes finais usadas pelo parser.</td></tr>
+          <tr><td><code>first_follow.csv</code></td><td>Conjuntos FIRST e FOLLOW.</td></tr>
+          <tr><td><code>itens_lr0.csv</code></td><td>Itens LR(0) de cada estado.</td></tr>
+          <tr><td><code>transicoes_lr0.csv</code></td><td>Transicoes entre estados.</td></tr>
+          <tr><td><code>tabela_slr.csv</code></td><td>Tabela ACTION/GOTO.</td></tr>
+          <tr><td><code>conflitos_slr.csv</code></td><td>Conflitos detectados ou ausencia deles.</td></tr>
+        </table>
+      </section>
+
+      <section id="etapa2">
+        <h2>Etapa 2 - Analise Semantica</h2>
+        <div class="grid">
+          <article class="card stage ok">
+            <span class="file">SyntacticAnalyzer.java</span>
+            <h3>Acoes semanticas no parser</h3>
+            <p>Durante <code>shift</code> e <code>reduce</code>, o reconhecedor atualiza a tabela de simbolos.</p>
+            <pre><code>// Etapa 2: acao semantica associada ao deslocamento do token.
+annotateShift(symbolTable, position, lookahead, action.target());
+
+entry.setSemanticName(entry.getLabel());
+entry.setSemanticType("terminal:" + lookahead);
+entry.setSemanticStatus("deslocado");</code></pre>
+          </article>
+
+          <article class="card stage ok">
+            <span class="file">SemanticAnalyzer.java</span>
+            <h3>Caracteristica semantica</h3>
+            <p>Valida se cada simbolo reconhecido tem categoria, nome, tipo e se nao ha duplicidade por categoria.</p>
+            <pre><code>// Caracteristica semantica: cada lexema reconhecido deve ter tipo e nome unicos por categoria.
+if (isBlank(entry.getSemanticName())) {
+    errors.add("Linha " + entry.getLine() + ": simbolo sem nome semantico.");
+}
+
+String key = normalize(entry.getSyntaxCategory()) + "::" + normalize(entry.getSemanticName());</code></pre>
+          </article>
+        </div>
+        <div class="note">
+          Saida esperada: <code>resultado_semantico.txt</code>. No estudo de caso atual, o arquivo contem <code>ACEITO</code>.
+        </div>
+      </section>
+
+      <section id="etapa3">
+        <h2>Etapa 3 - Codigo Intermediario</h2>
+        <article class="card stage ok">
+          <span class="file">SyntacticAnalyzer.java</span>
+          <h3>Geracao durante reducoes</h3>
+          <p>
+            A demonstracao foi aplicada na regra <code>TOKEN -&gt; terminal</code>. Cada reducao gera um temporario
+            e depois associa esse temporario ao rotulo do token.
+          </p>
+          <pre><code>// Demonstracao da etapa 3 para a regra TOKEN -> terminal.
+String temp = "t" + tempCounter;
+intermediateCode.add(temp + " = TOKEN(" + terminal + ", " + lexeme + ")");
+intermediateCode.add(identifier + " = " + temp);</code></pre>
+        </article>
+        <h3>Exemplo de saida</h3>
+        <pre><code>t1 = TOKEN(F, banana)
+F = t1
+t2 = TOKEN(N, macarrao)
+N = t2</code></pre>
+      </section>
+
+      <section id="etapa4">
+        <h2>Etapa 4 - Otimizacao</h2>
+        <article class="card stage ok">
+          <span class="file">IntermediateCodeOptimizer.java</span>
+          <h3>Propagacao simples de copia</h3>
+          <p>
+            A estrategia remove temporarios usados somente para copiar uma expressao para outro rotulo.
+          </p>
+          <pre><code>// Etapa 4: propagacao de copia remove temporarios usados uma unica vez.
+if (next.endsWith(copySuffix)) {
+    String target = next.substring(0, next.length() - copySuffix.length());
+    optimized.add(target + " = " + expression);
+    i++;
+    continue;
+}</code></pre>
+        </article>
+        <div class="grid">
+          <div class="card">
+            <h3>Antes</h3>
+            <pre><code>t1 = TOKEN(F, banana)
+F = t1</code></pre>
+          </div>
+          <div class="card">
+            <h3>Depois</h3>
+            <pre><code>F = TOKEN(F, banana)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="arquivos">
+        <h2>Mapa dos Arquivos</h2>
+        <table>
+          <tr><th>Arquivo</th><th>Responsabilidade no projeto</th></tr>
+          <tr><td><code>InitializeProgram.java</code></td><td>Orquestra lexico, sintatico, semantica, codigo intermediario e otimizacao.</td></tr>
+          <tr><td><code>GrammarLoader.java</code></td><td>Le a GLC e transforma texto em producoes internas.</td></tr>
+          <tr><td><code>GrammarNormalizer.java</code></td><td>Remove producoes inuteis e aplica fatoracao simples.</td></tr>
+          <tr><td><code>FirstFollowCalculator.java</code></td><td>Calcula FIRST e FOLLOW.</td></tr>
+          <tr><td><code>SLRTableBuilder.java</code></td><td>Gera itens LR(0), transicoes e tabela SLR.</td></tr>
+          <tr><td><code>SyntacticAnalyzer.java</code></td><td>Executa o algoritmo shift/reduce e gera codigo intermediario.</td></tr>
+          <tr><td><code>SemanticAnalyzer.java</code></td><td>Valida a caracteristica semantica escolhida.</td></tr>
+          <tr><td><code>IntermediateCodeOptimizer.java</code></td><td>Aplica a otimizacao no codigo intermediario.</td></tr>
+          <tr><td><code>ParserArtifactsWriter.java</code></td><td>Grava CSVs, resultado semantico e codigos gerados.</td></tr>
+          <tr><td><code>SymbolTableEntry.java</code></td><td>Modelo da tabela de simbolos com campos sintaticos e semanticos.</td></tr>
+        </table>
+      </section>
+
+      <section id="arguicao">
+        <h2>Pontos Para Arguicao</h2>
+        <ul>
+          <li>A fita do sintatico vem de <code>fita.csv</code> e termina com <code>$</code>.</li>
+          <li><code>epsilon</code> e producao vazia, por isso nao deve ser consumido como token.</li>
+          <li>FIRST/FOLLOW sustentam as reducoes da tabela SLR.</li>
+          <li><code>shift</code> consome token; <code>reduce</code> reconhece uma estrutura sintatica.</li>
+          <li>A tabela de simbolos recebe categoria sintatica, observacao de reducao e atributos semanticos.</li>
+          <li>A analise semantica valida nome, tipo e duplicidade por categoria.</li>
+          <li>O codigo intermediario e gerado em uma reducao especifica para demonstracao.</li>
+          <li>A otimizacao elimina temporarios redundantes por propagacao de copia.</li>
+        </ul>
+        <div class="note warning">
+          Para entregar o texto formal, use <code>DOCUMENTACAO_PROJETO.md</code>. Para estudar e apresentar,
+          use este tour HTML como roteiro visual.
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

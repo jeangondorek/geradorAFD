@@ -140,3 +140,73 @@ senao
 <S> ::= a<A> | e<A> | i<A> | o<A> | u<A>
 <A> ::= a<A> | e<A> | i<A> | o<A> | u<A> | ε
 ```
+
+---
+
+## 🧠 Projeto 2 — Reconhecedor Sintático SLR
+
+O projeto foi estendido para incluir um **analisador sintático SLR(1)** completo, com análise semântica, geração de código intermediário e otimização.
+
+### 📋 Etapa 1 — Reconhecimento Sintático (70%)
+
+| Componente | Classe | Artefato gerado |
+|:---|:---|:---|
+| Construção da GLC | `GrammarLoader.java` | `producoes.csv` |
+| Eliminação de inúteis + fatoração | `GrammarNormalizer.java` | (gramática normalizada internamente) |
+| Cálculo FIRST/FOLLOW | `FirstFollowCalculator.java` | `first_follow.csv` |
+| Itens LR(0) e transições | `SLRTableBuilder.java` | `itens_lr0.csv`, `transicoes_lr0.csv` |
+| Tabela SLR (ACTION/GOTO) | `SLRTableBuilder.java` | `tabela_slr.csv`, `conflitos_slr.csv` |
+| Algoritmo shift/reduce | `SyntacticAnalyzer.java` | aceite ou erros sintáticos |
+| Tabela de símbolos estendida | `SymbolTableEntry.java` | `tabela_simbolos.csv` |
+
+**Entrada:** `fita.csv` (fita de saída do léxico)  
+**Saída:** aceite sintático ou mensagem(ns) de erro  
+
+### 🔍 Etapa 2 — Análise Semântica (10%)
+
+- **Característica semântica:** unicidade de lexema por categoria sintática + presença de nome e tipo
+- **Ações semânticas:** `annotateShift()` e `annotateReduce()` em `SyntacticAnalyzer.java`
+- **Validação:** `SemanticAnalyzer.java`
+- **Saída:** `resultado_semantico.txt` (ACEITO ou erros semânticos)
+
+### ⚙️ Etapa 3 — Código Intermediário (10%)
+
+- **Geração:** em `SyntacticAnalyzer.generateIntermediateCode()` durante reduções da regra `TOKEN → terminal`
+- **Saída:** `codigo_intermediario.txt`
+
+### 🚀 Etapa 4 — Otimização (10%)
+
+- **Estratégia:** propagação de cópias (*copy propagation*) em `IntermediateCodeOptimizer.java`
+- **Entrada:** `codigo_intermediario.txt`
+- **Saída:** `codigo_intermediario_otimizado.txt`
+
+### 📂 Estrutura do pacote sintático
+
+```
+src/main/java/org/acme/afd/sintatico/
+├── GrammarLoader.java               # Carrega e parseia a GLC do arquivo de entrada
+├── GrammarNormalizer.java            # Remove inúteis + fatoração simples
+├── FirstFollowCalculator.java        # Calcula FIRST e FOLLOW por ponto fixo
+├── SLRTableBuilder.java              # Gera itens LR(0), transições e tabela SLR
+├── SyntacticAnalyzer.java            # Motor shift/reduce + ações semânticas + código intermediário
+├── SemanticAnalyzer.java             # Valida característica semântica
+├── IntermediateCodeOptimizer.java     # Propagação de cópia
+├── SyntacticService.java             # Orquestra todo o pipeline sintático
+├── ParserArtifactsWriter.java        # Grava CSVs e arquivos de saída
+├── TapeReader.java                   # Lê a fita léxica
+├── SymbolTableCsvRepository.java     # Lê/grava tabela de símbolos em CSV
+├── Grammar.java                      # Record: representação da GLC
+├── Production.java                   # Record: regra de produção
+├── LR0Item.java                      # Record: item LR(0)
+├── SLRTable.java                     # Record: tabela SLR completa
+├── ParsingAction.java                # Record: ação de parsing (shift/reduce/accept)
+├── ActionType.java                   # Enum: SHIFT, REDUCE, ACCEPT
+├── SyntacticResult.java              # Record: resultado do reconhecimento
+└── SemanticResult.java               # Record: resultado da semântica
+```
+
+### 📖 Documentação adicional
+
+- **`DOCUMENTACAO_PROJETO.md`** — Relatório técnico completo (Resumo, Introdução, Referencial Teórico, Implementação, Conclusões)
+- **`RELATORIO_PROJETO.md`** — Relatório acadêmico formatado para entrega
+- **`docs_tour.html`** — Tour visual interativo do projeto (abrir no navegador)

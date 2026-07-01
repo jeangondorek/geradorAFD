@@ -1,0 +1,5 @@
+nonterminal,first,follow
+LISTA,epsilon F N T U,$
+PROGRAMA,epsilon F N T U,$
+PROGRAMA',epsilon F N T U,
+TOKEN,F N T U,F N T U $

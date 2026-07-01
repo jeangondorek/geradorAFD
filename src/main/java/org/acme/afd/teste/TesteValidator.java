@@ -86,10 +86,14 @@ public class TesteValidator {
         }
 
         try (FileWriter writer = new FileWriter("tabela_simbolos_teste.csv")) {
-            writer.append("Linha,Identificador/Estado,Rotulo/Token\n");
+            writer.append("Linha,Identificador/Estado,Rotulo/Token,CategoriaSintatica,ObservacaoSintatica\n");
             for (SymbolTableEntry entry : tabela) {
-                writer.append(String.format("%d,%s,%s\n", 
-                    entry.getLine(), entry.getIdentifier(), entry.getLabel()));
+                writer.append(String.format("%d,%s,%s,%s,%s\n", 
+                    entry.getLine(),
+                    entry.getIdentifier(),
+                    entry.getLabel(),
+                    entry.getSyntaxCategory() != null ? entry.getSyntaxCategory() : "",
+                    entry.getSyntaxNote() != null ? entry.getSyntaxNote() : ""));
             }
             System.out.println("[OK] tabela_simbolos_teste.csv gerado.");
         } catch (IOException e) {

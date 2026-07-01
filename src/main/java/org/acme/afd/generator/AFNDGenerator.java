@@ -15,17 +15,23 @@ import org.acme.afd.model.Transition;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+/**
+ * Gerador do Automato Finito Nao-Deterministico (AFND).
+ * Constroi o AFND a partir dos tokens (palavras reservadas/simbolos) e das
+ * regras gramaticais em formato BNF lidas do arquivo de entrada.
+ */
 @ApplicationScoped
 public class AFNDGenerator {
-    private static final char SKIP_LETTER = 'S';
-    private static final char START_LETTER = 'A';
-    private static final char END_LETTER = 'Z';
-    private static final char ERROR_STATE_LABEL = 'X';
+    private static final char SKIP_LETTER = 'S';     // Letra reservada para o estado inicial, pulada na geracao
+    private static final char START_LETTER = 'A';     // Primeira letra usada para nomear estados
+    private static final char END_LETTER = 'Z';       // Ultima letra do ciclo de nomeacao
+    private static final char ERROR_STATE_LABEL = 'X'; // Letra reservada para o estado de erro
 
     private final Map<String, State> existingStates = new HashMap<>();
     private int suffix = 1;
     private char lastLetter = START_LETTER;
 
+    /** Gera o AFND completo a partir dos tokens e das regras gramaticais. */
     public Automaton generate(List<String> tokens, Map<String, String> grammars) {
         Automaton afnd = Automaton.builder()
                 .states(new LinkedHashSet<>())
@@ -38,6 +44,7 @@ public class AFNDGenerator {
 
         Set<State> allStates = afnd.getStates();
 
+        // Cria estados e transicoes para cada token (palavra reservada/simbolo)
         for (String token : tokens) {
             State prevState = null;
             State currentState = null;
@@ -62,6 +69,7 @@ public class AFNDGenerator {
                 countState++;
             }
 
+            // Cria o estado final de aceitacao para este token
             State finalState = createState("", generateStateName(), true);
             afnd.getStates().add(finalState);
 
@@ -77,18 +85,22 @@ public class AFNDGenerator {
             afnd.setStates(allStates);
         }
         
+        // Mapeia nomes de nao-terminais da gramatica para nomes de estados do AFND
         Map<String, String> tokenToStateMap = new HashMap<>();
         Map<String, State> stateMap = new HashMap<>();
 
+        // Processa cada regra gramatical BNF para criar estados e transicoes
         for (Map.Entry<String, String> entry : grammars.entrySet()) {
             String ruleName = entry.getKey();
             String grammar = entry.getValue();
 
+            // Divide as alternativas da producao (separadas por '|')
             String[] parts = grammar.split("\\|");
 
             for (String part : parts) {
                 part = part.trim();
 
+                // Se a producao e epsilon, marca o estado fonte como final
                 boolean isFinal = part.equals("ε");
 
                 if (isFinal) {
@@ -105,6 +117,7 @@ public class AFNDGenerator {
                     continue;
                 }
 
+                // Extrai o nao-terminal de destino (entre < >) e o simbolo terminal (letra minuscula)
                 Matcher tokenMatcher = Pattern.compile("<(.*?)>").matcher(part);
                 String tokenName = tokenMatcher.find() ? tokenMatcher.group(1) : null;
 
@@ -161,6 +174,7 @@ public class AFNDGenerator {
         return afnd;
     }
 
+    /** Cria um estado para um caractere do token; o primeiro caractere usa o estado inicial 'S'. */
     private State tokenCreate(int countState, char ch, Automaton afnd, String initialTokenName) {
         if (countState == 0){
             afnd.getAlphabet().add(String.valueOf(ch));
@@ -179,6 +193,7 @@ public class AFNDGenerator {
                 .build();
     }
 
+    /** Gera nomes unicos para estados (A, B, ..., Z, A2, B2, ...), pulando 'S' e 'X'. */
     public String generateStateName() {
         String stateName;
 

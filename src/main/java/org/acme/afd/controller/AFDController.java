@@ -14,6 +14,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Controlador que orquestra a geracao do automato finito.
+ * Realiza duas etapas: (1) leitura e parsing do arquivo de entrada para gerar o AFND,
+ * e (2) determinizacao do AFND para obter o AFD.
+ */
 @ApplicationScoped
 public class AFDController {
 
@@ -24,15 +29,19 @@ public class AFDController {
     @Inject
     InputParser parser;
 
+    /** Le o arquivo de entrada, extrai tokens e gramaticas, e gera o AFND. */
     public Automaton processFileAfnd(String filePath) throws IOException {
         System.out.println("Iniciando processamento do arquivo: " + filePath);
 
+        // Listas para armazenar os tokens e as gramaticas extraidas do arquivo
         List<String> parserDataTokens;
         Map<String, String> parserDataGrammar = new LinkedHashMap<>();
 
+        // Abre dois leitores: um para tokens e outro para regras gramaticais (BNF)
         try (BufferedReader tokenReader = new BufferedReader(new FileReader(filePath));
              BufferedReader grammarReader = new BufferedReader(new FileReader(filePath))) {
 
+            // 1. Extrai os tokens do arquivo
             parserDataTokens = parser.parse(tokenReader);
 
             String line;
@@ -53,6 +62,7 @@ public class AFDController {
         }
     }
 
+    /** Recebe o AFND gerado e aplica o algoritmo de determinizacao para obter o AFD. */
     public Automaton processFileAfd(Automaton afnd) {
         // 3. Determinizar
         Automaton afd = determinizer.determinize(afnd);
