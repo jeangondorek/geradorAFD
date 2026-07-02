@@ -2,6 +2,5 @@ Linha,Identificador/Estado,Rotulo/Token,CategoriaSintatica,ObservacaoSintatica,N
 1,F,banana,F,shift->I4 | reduce TOKEN->F,banana,TOKEN,reconhecido
 2,N,macarrao,N,shift->I5 | reduce TOKEN->N,macarrao,TOKEN,reconhecido
 3,T,cerdo,T,shift->I6 | reduce TOKEN->T,cerdo,TOKEN,reconhecido
-4,U,fi,U,shift->I7 | reduce TOKEN->U,fi,TOKEN,reconhecido
-5,U,fei,U,shift->I7 | reduce TOKEN->U,fei,TOKEN,reconhecido
-6,U,ei,U,shift->I7 | reduce TOKEN->U | reduce LISTA->epsilon | reduce LISTA->TOKEN LISTA | reduce PROGRAMA->LISTA,ei,TOKEN,reconhecido
+4,U,ff,U,shift->I7 | reduce TOKEN->U,ff,TOKEN,reconhecido
+5,U,af,U,shift->I7 | reduce TOKEN->U | reduce LISTA->epsilon | reduce LISTA->TOKEN LISTA | reduce PROGRAMA->LISTA,af,TOKEN,reconhecido
